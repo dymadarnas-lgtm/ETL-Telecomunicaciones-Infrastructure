@@ -11,7 +11,7 @@ Diseñé un proceso ETL para cruzar los registros de **30 clientes** contra la b
 ### Stack Técnico
 * **Python (Pandas):** Limpieza de strings, normalización de fechas y manejo de valores nulos en el archivo `clientes_sucio.csv`.
 * **SQL:** Ejecución de JOINs para identificar usuarios colgados a la antena `ANT_999` (inexistente).
-* **Visualización:** Reporte en HTML/CSS y Dashboards para mostrar el impacto financiero (estimado en **$15.6K**).
+* **Visualización:** Reporte en HTML/CSS y Dashboards en **Grafana** y Power BI para mostrar el impacto financiero en tiempo real (estimado en **$15.6K**).
 
 ### Estructura del Repo
 * `etl_limpieza.py`: El script donde sucede la magia de la limpieza.
