@@ -1,6 +1,6 @@
 # Monitoreo de Infraestructura: Detección de brechas en facturación 📡
 
-![Dashboard de Telecomunicaciones](dashboard_reporte.png)
+![Dashboard de Telecomunicaciones](dashboard_final.png)
 
 ### El Problema (Contexto)
 En el sector de telecomunicaciones, es común que la base de datos comercial no coincida con la técnica. Esto genera que clientes tengan servicios activos en antenas que no existen o que están en mantenimiento, resultando en cobros indebidos o falta de señal sin previo aviso.
