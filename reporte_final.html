@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte ETL — Telecomunicaciones</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --border: #1e2330;
+    --accent: #00d4aa;
+    --accent2: #ff6b6b;
+    --accent3: #ffd166;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-left: 4px solid var(--accent);
+    padding-left: 20px;
+    margin-bottom: 48px;
+  }
+  .header .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .header .subtitle { color: var(--muted); font-size: 14px; }
+
+  /* KPI cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi.green::before  { background: var(--accent); }
+  .kpi.red::before    { background: var(--accent2); }
+  .kpi.yellow::before { background: var(--accent3); }
+  .kpi .label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .kpi .value { font-family: var(--mono); font-size: 32px; font-weight: 600; line-height: 1; }
+  .kpi.green .value  { color: var(--accent); }
+  .kpi.red .value    { color: var(--accent2); }
+  .kpi.yellow .value { color: var(--accent3); }
+  .kpi .detail { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Error table */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .badge-red    { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.3); }
+  .badge-yellow { background: rgba(255,209,102,0.15); color: var(--accent3); border: 1px solid rgba(255,209,102,0.3); }
+  .badge-green  { background: rgba(0,212,170,0.15);   color: var(--accent);  border: 1px solid rgba(0,212,170,0.3); }
+
+  /* Bar chart */
+  .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+  .bar-row { display: flex; align-items: center; gap: 12px; }
+  .bar-label { font-size: 12px; color: var(--muted); width: 100px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 4px; transition: width 1s ease; }
+  .bar-val   { font-family: var(--mono); font-size: 12px; color: var(--text); width: 40px; text-align: right; }
+
+  /* Conclusion */
+  .conclusion {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .conclusion strong { color: var(--accent); }
+  .conclusion .impact {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.2);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent2);
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="tag">Portfolio · Proyecto 01 · Data Engineering</div>
+    <h1>ETL de Infraestructura de Telecomunicaciones</h1>
+    <div class="subtitle">Análisis de inconsistencias entre clientes, provisión de servicios y antenas de red</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi green">
+      <div class="label">Registros analizados</div>
+      <div class="value">30</div>
+      <div class="detail">CSV fuente · Período 2023</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Inconsistencias</div>
+      <div class="value">15%</div>
+      <div class="detail">Impacto en facturación</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Antenas inválidas</div>
+      <div class="value">2</div>
+      <div class="detail">ANT_999 — inexistente</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Monto en riesgo</div>
+      <div class="value">$15.6K</div>
+      <div class="detail">Facturación no cobrable</div>
+    </div>
+  </div>
+
+  <!-- Errores detectados -->
+  <div class="section">
+    <div class="section-title">Errores detectados por categoría</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de error</th>
+          <th>Registros</th>
+          <th>Impacto</th>
+          <th>Severidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>DNI faltante</td>
+          <td>2</td>
+          <td>Identidad no verificable</td>
+          <td><span class="badge badge-yellow">MEDIO</span></td>
+        </tr>
+        <tr>
+          <td>Teléfono inválido o ausente</td>
+          <td>3</td>
+          <td>Sin contacto para cobranza</td>
+          <td><span class="badge badge-yellow">MEDIO</span></td>
+        </tr>
+        <tr>
+          <td>Email faltante</td>
+          <td>4</td>
+          <td>Sin notificaciones de factura</td>
+          <td><span class="badge badge-yellow">MEDIO</span></td>
+        </tr>
+        <tr>
+          <td>Formato de fecha incorrecto</td>
+          <td>3</td>
+          <td>Error en cálculo de antigüedad</td>
+          <td><span class="badge badge-yellow">MEDIO</span></td>
+        </tr>
+        <tr>
+          <td>Antena inexistente (ANT_999)</td>
+          <td>2</td>
+          <td>Servicio no provisionado · cobro indebido</td>
+          <td><span class="badge badge-red">CRÍTICO</span></td>
+        </tr>
+        <tr>
+          <td>Activo en antena en mantenimiento</td>
+          <td>2</td>
+          <td>Corte de servicio no notificado</td>
+          <td><span class="badge badge-red">CRÍTICO</span></td>
+        </tr>
+        <tr>
+          <td>Suspendido con cobro activo</td>
+          <td>1</td>
+          <td>Posible reclamo y devolución</td>
+          <td><span class="badge badge-red">CRÍTICO</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Distribución por antena -->
+  <div class="section">
+    <div class="section-title">Distribución de clientes por antena</div>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">ANT_001</div>
+        <div class="bar-track"><div class="bar-fill" style="width:30%; background:var(--accent)"></div></div>
+        <div class="bar-val">5</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">ANT_002</div>
+        <div class="bar-track"><div class="bar-fill" style="width:24%; background:var(--accent)"></div></div>
+        <div class="bar-val">4</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">ANT_003</div>
+        <div class="bar-track"><div class="bar-fill" style="width:24%; background:var(--accent)"></div></div>
+        <div class="bar-val">4</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">ANT_999 ⚠</div>
+        <div class="bar-track"><div class="bar-fill" style="width:12%; background:var(--accent2)"></div></div>
+        <div class="bar-val">2</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Otros</div>
+        <div class="bar-track"><div class="bar-fill" style="width:55%; background:var(--muted)"></div></div>
+        <div class="bar-val">15</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conclusión -->
+  <div class="section">
+    <div class="section-title">Conclusión ejecutiva</div>
+    <div class="conclusion">
+      El análisis ETL sobre <strong>30 registros</strong> de clientes identificó múltiples categorías de error
+      con distintos niveles de impacto operativo. Los errores de mayor criticidad corresponden a
+      clientes asignados a <strong>antenas inexistentes o en mantenimiento</strong>, lo que implica
+      que el servicio no está siendo provisionado correctamente mientras la facturación continúa activa.
+      <br><br>
+      Se detectaron además inconsistencias de datos personales (DNI, email, teléfono) que impiden
+      la gestión efectiva de cobranza y contacto con el cliente.
+      <div class="impact">
+        ▶ Se detectó un ~15% de inconsistencias que afectaban directamente la facturación.<br>
+        ▶ Monto estimado en riesgo: $15.600 ARS mensuales sin corrección.
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>ETL_TELECOM_v1.0 · Python + MySQL</span>
+    <span>2023 · [Tu Nombre]</span>
+  </div>
+
+</div>
+</body>
+</html>
